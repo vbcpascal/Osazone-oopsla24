@@ -1,0 +1,33 @@
+module Calculator where
+
+sugar extension where
+
+  -- The whole calculator, printing its title.
+  -- calculator title e ->d print (title ++ "\n"); e
+  Calculator Exp Exp :: Declr
+  Calculator title e = DExp (ESeq (EPrint (EConcat title (EStr "\n"))) e)
+
+  -- An input field, which prints its name and asks for a value.
+  -- input var e ->d let var = (print (var ++ ": "); readInt) in e
+  Input Id Exp :: Exp
+  Input var e = ELet var (ESeq (EPrint (EConcat (EStr var) (EStr ": "))) EReadInt) e
+
+  -- An output field, which prints an expression.
+  -- output e e' ->d print e; e'
+  Output Exp Exp :: Exp
+  Output e e' = ESeq (EPrint e) e'
+
+  -- End of program.
+  -- (end of program) ->d ()
+  End :: Exp
+  End = EUnit
+
+filter where
+
+  use extension (..)
+  use host ( EVar, EInt, EPlus, ESub, EMul, EPow, EReadInt, EPrint, EStr )
+  use host ( VInt, VUnit, VStr, TInt, TUnit, TStr )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )

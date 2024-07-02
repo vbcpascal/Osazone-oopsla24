@@ -1,0 +1,63 @@
+module Complex where
+
+sugar extension where
+
+  -- Prog { e } ->d
+  --   data Complex = Complex Int Int; e
+  Prog Exp :: Declr
+  Prog e = DData "Complex" [(Constr "Complex" [TInt, TInt])] (DExp e)
+
+  -- let p = e1 in e2  ->d  case e1 of p -> e2
+  Let Pattern Exp Exp :: Exp
+  Let p e1 e2 = ECase e1 [Branch p e2]
+
+  -- n1 + n2i ->d Complex n1 n2
+  C Int Int :: Exp
+  C n1 n2 = ECon "Complex" [EInt n1, EInt n2]
+
+  -- e1 + e2 ->d fresh x1, x2, y1, y2 in
+  --   let Complex x1 y1 in
+  --     let Complex x2 y2 in
+  --       Complex (x1 + x2) (y1 + y2)
+  CAdd Exp Exp :: Exp
+  CAdd e1 e2 = @fresh x1 x2 y1 y2
+    in Let (Pattern "Complex" ["x1", "y1"]) e1 
+        (Let (Pattern "Complex" ["x2", "y2"]) e2
+          (ECon "Complex"
+            [ EPlus (EVar "x1") (EVar "x2")
+            , EPlus (EVar "y1") (EVar "y2") ]))
+
+  -- e1 - e2 ->d fresh x1, x2, y1, y2 in
+  --   let Complex x1 y1 in
+  --     let Complex x2 y2 in
+  --       Complex (x1 - x2) (y1 - y2)
+  CSub Exp Exp :: Exp
+  CSub e1 e2 = @fresh x1 x2 y1 y2
+    in Let (Pattern "Complex" ["x1", "y1"]) e1 
+        (Let (Pattern "Complex" ["x2", "y2"]) e2
+          (ECon "Complex" 
+            [ ESub (EVar "x1") (EVar "x2")
+            , ESub (EVar "y1") (EVar "y2") ]))
+
+  -- e1 * e2 ->d fresh x1, x2, y1, y2 in
+  --   let Complex x1 y1 in
+  --     let Complex x2 y2 in
+  --       Complex (x1 * x2 - y1 * y2) (x1 * y2 - x2 * y1)
+  CMul Exp Exp :: Exp
+  CMul e1 e2 = @fresh x1 x2 y1 y2
+    in Let (Pattern "Complex" ["x1", "y1"]) e1 
+        (Let (Pattern "Complex" ["x2", "y2"]) e2
+          (ECon "Complex" 
+            [ ESub (EMul (EVar "x1") (EVar "x2"))
+                   (EMul (EVar "y1") (EVar "y2")) 
+            , EPlus (EMul (EVar "x1") (EVar "y2"))
+                    (EMul (EVar "x2") (EVar "y1")) ]))
+
+filter where
+
+  use extension (..)
+  use host ( EInt, VInt, TInt, ECon, TCon, VCon )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch )

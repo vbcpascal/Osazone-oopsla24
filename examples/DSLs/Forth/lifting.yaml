@@ -1,0 +1,12 @@
+# Configurations of Forth
+
+# The name of the language after lifting
+name:       Forth
+
+# The path of core language definiton
+core:       ../../Host/MiniMLStack
+
+# The extension file
+extensions: 
+
+  - Forth

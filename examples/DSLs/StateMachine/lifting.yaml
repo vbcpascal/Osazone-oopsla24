@@ -1,0 +1,12 @@
+# Configurations of StateMachine by lifting
+
+# The name of the language after lifting
+name:       StateMachine
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - StateMachine

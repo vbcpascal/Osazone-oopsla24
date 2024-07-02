@@ -1,0 +1,12 @@
+# Configurations of Deep
+
+# The name of the language after lifting
+name:       Deep
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - Deep

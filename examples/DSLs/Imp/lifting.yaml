@@ -1,0 +1,12 @@
+# Configurations of Imp
+
+# The name of the language after lifting
+name:       Imp
+
+# The path of core language definiton
+core:       ../../Host/MiniMLRef
+
+# The extension file
+extensions: 
+
+  - Imp

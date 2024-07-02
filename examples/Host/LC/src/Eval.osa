@@ -1,0 +1,21 @@
+module Eval where
+
+import Lang
+import Subst
+import Meta.Monad.Trans
+
+eval for Exp :: Exp
+
+eval ETrue = ETrue
+eval EFalse = EFalse
+eval (EIf e1 e2 e3) =
+  case eval e1 of
+    ETrue  -> eval e2
+    EFalse -> eval e3
+eval (EVar x) = undefined
+eval (EAbs x e) = EAbs x e
+eval (EApp e1 e2) =
+  let EAbs x e = eval e1
+      v2 = eval e2
+      v = eval (subst e x v2)
+  in v

@@ -1,0 +1,12 @@
+# Configurations of Complex
+
+# The name of the language after lifting
+name:       Complex
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - Complex

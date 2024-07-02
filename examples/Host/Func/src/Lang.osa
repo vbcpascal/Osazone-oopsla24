@@ -1,0 +1,41 @@
+module Lang where
+
+import Meta.Identifier
+
+-- The program entrance
+type Program = Exp
+
+-- location for storage
+type Loc = Int
+
+data Exp
+  = EVar Id
+  | EAbs Id Exp
+  | EAppV Exp Exp   -- call by value
+  | EAppN Exp Exp   -- call by name
+  | ETrue
+  | EFalse
+  | EIf Exp Exp Exp
+  | EInt Int
+  | EAdd Exp Exp 
+  | EEq Exp Exp
+  | ELt Exp Exp
+  | EUnit
+  | ELet Id Exp Exp
+  | ESeq Exp Exp
+  | EPair Exp Exp
+  | EFst Exp
+  | ESnd Exp
+  | EInl Exp
+  | EInr Exp 
+  | ECase Exp Id Exp Id Exp
+  | ENil
+  | ECons Exp Exp
+  | EHead Exp
+  | ETail Exp
+  | EIsNil Exp
+  | EFix Exp
+  | ERef Exp
+  | EDeref Exp
+  | EAsgn Exp Exp
+  | ELoc Loc

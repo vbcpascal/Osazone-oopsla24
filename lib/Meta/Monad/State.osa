@@ -1,0 +1,20 @@
+module Meta.Monad.State where
+
+import Haskell.Control.Monad.State as HS
+
+type State = HS.StateT
+
+[#monadic]
+[#gentype "Monad m => Control.Monad.State.StateT s m s"]
+get ::?
+get = HS.get
+
+[#monadic]
+[#gentype "Monad m => s -> Control.Monad.State.StateT s m ()"]
+put ::?
+put = HS.put
+
+[#pure]
+[#gentype "Monad m => Control.Monad.State.StateT s m a -> s -> m a"]
+evalState ::?
+evalState = HS.evalStateT

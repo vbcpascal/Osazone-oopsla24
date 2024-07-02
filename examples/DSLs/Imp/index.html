@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Imp: Big-Step Operational Semantics</title>
+  <script id="MathJax-script" src="https://cdn.bootcss.com/mathjax/3.0.5/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+<a href="../index.html">back</a>
+<p> \[ \frac{ }{ {\mathbf{EAbs} ~ x ~ t ~ e \Downarrow_S \mathbf{EAbs} ~ x ~ t ~ e} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EAbs}~x ~ t ~ e} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {e[v_{2}/x] \Downarrow_S v} }{ {\mathbf{EApp} ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S l} \qquad  {e_{2} \Downarrow_S v} \qquad  {store ~ l ~ v} }{ {\mathbf{EAss} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S l} \qquad  {fetch ~ l \Rightarrow_S v} }{ {\mathbf{EDeRef} ~ e \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {eq ~ v_{1} ~ v_{2} \Rightarrow_S v} }{ {\mathbf{EEq} ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EFalse} \Downarrow_S \mathbf{EFalse}} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S \mathbf{EPair}~v_{1} ~ v_{2}} }{ {\mathbf{EFst} ~ e \Downarrow_S v_{1}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} \qquad  {e_{2} \Downarrow_S r} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} \qquad  {e_{3} \Downarrow_S r} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EInt} ~ i \Downarrow_S \mathbf{EInt} ~ i} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2}[v_{1}/x] \Downarrow_S v} }{ {\mathbf{ELet} ~ x ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{ELoc} ~ i \Downarrow_S \mathbf{ELoc} ~ i} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {lt ~ v_{1} ~ v_{2} \Rightarrow_S v} }{ {\mathbf{ELt} ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S v} \qquad  {neg ~ v \Rightarrow_S v_{1}} }{ {\mathbf{ENeg} ~ e \Downarrow_S v_{1}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} }{ {\mathbf{EPair} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EPair} ~ v_{1} ~ v_{2}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {plus ~ v_{1} ~ v_{2} \Rightarrow_S v} }{ {\mathbf{EPlus} ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S v} \qquad  {printShow ~ v} }{ {\mathbf{EPrint} ~ e \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S v} \qquad  {new \Rightarrow_S l} \qquad  {store ~ l ~ v \Rightarrow_S \mathbf{EUnit}} }{ {\mathbf{ERef} ~ e \Downarrow_S l} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EUnit}} \qquad  {e_{2} \Downarrow_S v_{2}} }{ {\mathbf{ESeq} ~ e_{1} ~ e_{2} \Downarrow_S v_{2}} } \] </p>
+<p> \[ \frac{ {e \Downarrow_S \mathbf{EPair}~v_{1} ~ v_{2}} }{ {\mathbf{ESnd} ~ e \Downarrow_S v_{2}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{ETrue} \Downarrow_S \mathbf{ETrue}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EUnit} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {lt ~ v_{1} ~ v_{2} \Rightarrow_S v} \qquad  {v \Rightarrow_S \mathbf{ETrue}} }{ {\mathbf{Le} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{ETrue}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{1}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {lt ~ v_{1} ~ v_{2} \Rightarrow_S v} \qquad  {v \Rightarrow_S \mathbf{EFalse}} \qquad  {e_{1} \Downarrow_S v_{3}} \qquad  {e_{2} \Downarrow_S v_{4}} \qquad  {eq ~ v_{3} ~ v_{4} \Rightarrow_S v_{5}} }{ {\mathbf{Le} ~ e_{1} ~ e_{2} \Downarrow_S v_{5}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S v_{2}} \qquad  {new \Rightarrow_S l} \qquad  {store ~ l ~ v_{2} \Rightarrow_S \mathbf{EUnit}} \qquad  {e_{2}[l/x] \Downarrow_S v} }{ {\mathbf{NewVar} ~ x ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} }{ {\mathbf{Or} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{ETrue}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} \qquad  {e_{2} \Downarrow_S r} }{ {\mathbf{Or} ~ e_{1} ~ e_{2} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{Pass} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S l} \qquad  {e_{1} \Downarrow_S l_{1}} \qquad  {fetch ~ l_{1} \Rightarrow_S v_{4}} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {plus ~ v_{4} ~ v_{2} \Rightarrow_S v_{3}} \qquad  {store ~ l ~ v_{3}} }{ {\mathbf{PlusAss} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {\mathbf{EVar} ~ x \Downarrow_S l} \qquad  {fetch ~ l \Rightarrow_S v} }{ {\mathbf{RVar} ~ x \Downarrow_S v} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} }{ {\mathbf{Unless} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} \qquad  {e_{2} \Downarrow_S r} }{ {\mathbf{Unless} ~ e_{1} ~ e_{2} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} \qquad  {e_{2} \Downarrow_S r} }{ {\mathbf{When} ~ e_{1} ~ e_{2} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} }{ {\mathbf{When} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} \qquad  {e_{2} \Downarrow_S \mathbf{EUnit}} \qquad  {\mathbf{While} ~ e_{1} ~ e_{2} \Downarrow_S v_{2}} }{ {\mathbf{While} ~ e_{1} ~ e_{2} \Downarrow_S v_{2}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} }{ {\mathbf{While} ~ e_{1} ~ e_{2} \Downarrow_S \mathbf{EUnit}} } \] </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> \[ \frac{ {updatet ~ x ~ t} \qquad  {e : t_{1}} \qquad  {restoret} }{ {\mathbf{EAbs} ~ x ~ t ~ e : \mathbf{TArrow} ~ t ~ t_{1}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TArrow}~t_{1} ~ t_{2}} \qquad  {e_{2} : t} \qquad  {(=) ~ t ~ t_{1}} }{ {\mathbf{EApp} ~ e_{1} ~ e_{2} : t_{2}} } \] </p>
+<p> \[ \frac{ {l : \mathbf{TRef}~t_{1}} \qquad  {e : t} \qquad  {(=) ~ t ~ t_{1}} }{ {\mathbf{EAss} ~ l ~ e : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {e : \mathbf{TRef}~t} }{ {\mathbf{EDeRef} ~ e : t} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TInt}} \qquad  {e_{2} : \mathbf{TInt}} }{ {\mathbf{EEq} ~ e_{1} ~ e_{2} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EFalse} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ {e : \mathbf{TPair}~t_{1} ~ t_{2}} }{ {\mathbf{EFst} ~ e : t_{1}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : t_{2}} \qquad  {e_{3} : t_{3}} \qquad  {(=) ~ t_{2} ~ t_{3}} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} : t_{2}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EInt} ~ i : \mathbf{TInt}} } \] </p>
+<p> \[ \frac{ {e_{1} : t_{1}} \qquad  {updatet ~ x ~ t_{1}} \qquad  {e_{2} : t} \qquad  {restoret} }{ {\mathbf{ELet} ~ x ~ e_{1} ~ e_{2} : t} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TInt}} \qquad  {e_{2} : \mathbf{TInt}} }{ {\mathbf{ELt} ~ e_{1} ~ e_{2} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ {e : \mathbf{TInt}} }{ {\mathbf{ENeg} ~ e : \mathbf{TInt}} } \] </p>
+<p> \[ \frac{ {e_{1} : t_{1}} \qquad  {e_{2} : t_{2}} }{ {\mathbf{EPair} ~ e_{1} ~ e_{2} : \mathbf{TPair} ~ t_{1} ~ t_{2}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TInt}} \qquad  {e_{2} : \mathbf{TInt}} }{ {\mathbf{EPlus} ~ e_{1} ~ e_{2} : \mathbf{TInt}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EPrint} ~ e : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {e : t} }{ {\mathbf{ERef} ~ e : \mathbf{TRef} ~ t} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TUnit}} \qquad  {e_{2} : t_{2}} }{ {\mathbf{ESeq} ~ e_{1} ~ e_{2} : t_{2}} } \] </p>
+<p> \[ \frac{ {e : \mathbf{TPair}~t_{1} ~ t_{2}} }{ {\mathbf{ESnd} ~ e : t_{2}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{ETrue} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EUnit} : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {r \Leftarrow_T searcht ~ x} }{ {\mathbf{EVar} ~ x : r} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TInt}} \qquad  {e_{2} : \mathbf{TInt}} \qquad  {e_{1} : \mathbf{TInt}} \qquad  {e_{2} : \mathbf{TInt}} }{ {\mathbf{Le} ~ e_{1} ~ e_{2} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ {e_{1} : t_{2}} \qquad  {t_{1} \Leftarrow_T \mathbf{TRef} ~ t_{2}} \qquad  {updatet ~ x ~ t_{1}} \qquad  {e_{2} : t} \qquad  {restoret} }{ {\mathbf{NewVar} ~ x ~ e_{1} ~ e_{2} : t} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : t_{3}} \qquad  {(=) ~ \mathbf{TBool} ~ t_{3}} }{ {\mathbf{Or} ~ e_{1} ~ e_{2} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{Pass} : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TRef}~t_{1}} \qquad  {e_{1} : \mathbf{TRef}~t_{2}} \qquad  {\mathbf{TInt} \Leftarrow_T t_{2}} \qquad  {e_{2} : \mathbf{TInt}} \qquad  {(=) ~ \mathbf{TInt} ~ t_{1}} }{ {\mathbf{PlusAss} ~ e_{1} ~ e_{2} : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {\mathbf{TRef}~t \Leftarrow_T searcht ~ x} }{ {\mathbf{RVar} ~ x : t} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : t_{3}} \qquad  {(=) ~ \mathbf{TUnit} ~ t_{3}} }{ {\mathbf{Unless} ~ e_{1} ~ e_{2} : \mathbf{TUnit}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : t_{2}} \qquad  {(=) ~ t_{2} ~ \mathbf{TUnit}} }{ {\mathbf{When} ~ e_{1} ~ e_{2} : t_{2}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : \mathbf{TUnit}} }{ {\mathbf{While} ~ e_{1} ~ e_{2} : \mathbf{TUnit}} } \] </p>
+</body>
+
+</html>

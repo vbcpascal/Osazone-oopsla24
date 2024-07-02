@@ -1,0 +1,7 @@
+module Functions where
+
+import Prelude
+
+[#pure]
+copy :: Int -> String -> String
+copy n s = if n == 0 then "" else s ++ copy (n - 1) s

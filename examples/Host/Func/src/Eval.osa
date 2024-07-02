@@ -1,0 +1,125 @@
+module Eval where
+
+import Lang
+import Subst
+import Data.Map
+import Meta.Monad.Trans
+import Meta.Monad.State
+import Meta.Semantics
+
+type Store = (Int, Map Loc Exp)
+
+eval for Exp :: Exp
+  monad (State Store)
+  as S
+
+eval (EVar x) = undefined
+eval (EAbs x e) = EAbs x e
+eval (EAppV e1 e2) =
+  let EAbs x e = eval e1
+      v2 = eval e2
+      v = eval (subst e x v2)
+  in v
+eval (EAppN e1 e2) =
+  let EAbs x e = eval e1
+      v = eval (subst e x e2)
+  in v
+eval ETrue = ETrue
+eval EFalse = EFalse
+eval (EIf e1 e2 e3) =
+  case eval e1 of
+    ETrue  -> eval e2
+    EFalse -> eval e3
+eval (EInt n) = EInt n
+eval (EAdd e1 e2) =
+  let EInt i1 = eval e1
+      EInt i2 = eval e2
+  in  EInt (i1 + i2)
+eval (EEq e1 e2) =
+  let EInt i1 = eval e1
+      EInt i2 = eval e2
+  in  if i1 == i2 then ETrue else EFalse
+eval (ELt e1 e2) =
+  let EInt i1 = eval e1
+      EInt i2 = eval e2
+  in  if i1 < i2 then ETrue else EFalse
+eval EUnit = EUnit
+eval (ELet x e1 e2) = 
+  let v = eval e1
+      v1 = eval (subst e2 x v)
+  in  v1
+eval (ESeq e1 e2) =
+  let EUnit = eval e1
+      v2 = eval e2
+  in v2
+eval (EPair e1 e2) =
+  let v1 = eval e1
+      v2 = eval e2
+  in  EPair v1 v2
+eval (EFst e) =
+  let EPair v1 v2 = eval e
+  in  v1
+eval (ESnd e) =
+  let EPair v1 v2 = eval e
+  in  v2
+eval (EInl e) =
+  let v = eval e
+  in  EInl v
+eval (EInr e) =
+  let v = eval e
+  in  EInr v
+eval (ECase e x e1 y e2) =
+  case eval e of
+    EInl v -> eval (subst e1 x v)
+    EInr v -> eval (subst e2 y v)
+eval ENil = ENil
+eval (ECons e1 e2) =
+  let v1 = eval e1
+      v2 = eval e2
+  in  ECons v1 v2
+eval (EHead e) =
+  let ECons v1 v2 = eval e
+  in  v1
+eval (ETail e) =
+  let ECons v1 v2 = eval e
+  in  v2
+eval (EIsNil e) =
+  case eval e of
+    ENil -> ETrue
+    ECons v1 v2 -> EFalse
+eval (EFix e) =
+  let EAbs x e' = eval e
+  in  eval (subst e' x (EFix (EAbs x e')))
+eval (ERef e) = 
+  let v = eval e
+      l = alloc
+      _ = store l v
+  in  ELoc l
+eval (EDeref e) =
+  let ELoc l = eval e
+      v = fetch l
+  in  v
+eval (EAsgn e1 e2) =
+  let ELoc l = eval e1
+      v2 = eval e2
+      _ = store l v2
+  in  EUnit
+eval (ELoc loc) = ELoc loc
+
+[#monadic]
+alloc :: S Loc
+alloc = let (n, st) = get
+            _       = put (n + 1, st)
+        in n
+
+[#monadic]
+store :: Loc -> Exp -> S ()
+store i v = let (n, st) = get
+                _       = put (n, insert i v st)
+            in  ()
+
+[#monadic]
+fetch :: Loc -> S Exp
+fetch i = let (n, st) = get
+              v       = st ! i
+          in  v

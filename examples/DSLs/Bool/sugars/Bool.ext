@@ -1,0 +1,54 @@
+module Bool where
+
+-- This is the definition of the `Bool` langauge.
+
+-- This part is used to define syntactic sugars for DSL
+-- We also define the `let` sugar from the Sec. 1.
+
+sugar extensions where
+  Let Id Exp Exp :: Exp
+  Let x e1 e2 = EApp (EAbs x e2) e1
+
+  Not Exp :: Exp
+  Not e = EIf e EFalse ETrue
+
+  And Exp Exp :: Exp
+  And e1 e2 = EIf e1 e2 EFalse
+
+  Or Exp Exp :: Exp
+  Or e1 e2 = EIf e1 ETrue e2
+
+  Nand Exp Exp :: Exp
+  Nand e1 e2 = Not (And e1 e2)
+
+  Nor Exp Exp :: Exp
+  Nor e1 e2 = Not (Or e1 e2)
+
+  Xor Exp Exp :: Exp
+  Xor e1 e2 = Or (And (Not e1) e2) (And e1 (Not e2))
+
+-- This part is used to specify which language constructs
+-- will be preserved in DSL. 
+
+filter where
+  use extensions (..)
+  use host (ETrue, EFalse, EVar)
+
+-- Currently, we haven't implemented lifting substitution rule, which 
+-- can be automatically done by *Inferring Scope through Syntactic 
+-- Sugar* (Justin Pombrio et al. 2017). We use the following defintion 
+-- as an interim solution: handwritten substitution rules.
+
+redefine Subst.subst where
+
+  subst ETrue x e' = ETrue
+  subst EFalse x e' = EFalse
+  subst (Not e) x e' = Not (subst e x e')
+  subst (And e1 e2) x e' = And (subst e1 x e') (subst e2 x e')
+  subst (Or e1 e2) x e' = Or (subst e1 x e') (subst e2 x e')
+  subst (Nand e1 e2) x e' = Nand (subst e1 x e') (subst e2 x e')
+  subst (Nor e1 e2) x e' = Nor (subst e1 x e') (subst e2 x e')
+  subst (Xor e1 e2) x e' = Xor (subst e1 x e') (subst e2 x e')
+  subst (Let y e1 e2) x e' = 
+    if y == x then Let y (subst e1 x e') e2 else Let y (subst e1 x e') (subst e2 x e')
+  subst (EVar x) y e = if x == y then e else EVar x

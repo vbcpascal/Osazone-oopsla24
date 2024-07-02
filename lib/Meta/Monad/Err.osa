@@ -1,0 +1,18 @@
+module Meta.Monad.Err where
+
+import Haskell.Control.Monad.Trans.Maybe as HS
+
+type State = HS.MaybeT
+
+[#monadic]
+[#gentype "Monad m => Err m a"]
+error ::?
+error = HS.get
+
+[#monadic]
+put ::?
+put = HS.put
+
+[#pure]
+evalState ::?
+evalState = HS.evalStateT

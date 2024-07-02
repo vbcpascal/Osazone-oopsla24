@@ -1,0 +1,39 @@
+# MiniMLStack language configurations
+# ======================================
+
+# The name of the language. You should capitalize the first letter.
+name: MiniMLStack
+
+# The version of this language.
+version: 0.1.0
+
+# The file extension for the language.
+extension: .l
+
+# Path of the libraries imported. Under the current project structure,
+# the standard library lies in the `lib` directory of Osazone project.
+lib: ../../../lib
+
+# The modules provided in `src`.
+modules:
+
+  # The AST declaration. It should contain all the data types used in
+  # the language. 
+  #
+  # [TODO] please use the name `Lang` for now.
+  ast: Lang
+
+  # The module for evaluation.
+  # 
+  # [TODO] please use the name `Eval` for now.
+  execution: Eval
+
+# Configuration of REPL interpreter. Each item consists a command and
+# an invocation.
+#
+# Note: avoid to use `q` or `quit` as the command name
+repl:
+  e: "ll (evalStateT (evalContext (rr (run $input$))) [])"
+
+extra:
+  - Meta.Monad.Context

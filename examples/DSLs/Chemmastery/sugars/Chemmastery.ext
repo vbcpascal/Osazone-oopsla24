@@ -1,0 +1,70 @@
+module Chemmastery where
+
+sugar extension where
+
+  -- The program entrance.
+  -- Prog { e } ->d e
+  Prog Exp :: Declr
+  Prog e = DExp e
+
+  -- Distinct primes for elements.
+  -- H ->d 2
+  H :: Exp
+  H = EInt 2
+
+  -- O ->d 3
+  O :: Exp
+  O = EInt 3
+
+  -- C ->d 5
+  C :: Exp
+  C = EInt 5
+
+  -- Ca ->d 7
+  Ca :: Exp
+  Ca = EInt 7
+
+  -- An element, with cardinality, for example H2 in H2O
+  -- Ei ->d e ^ i
+  Element Exp Int :: Exp
+  Element e i = EPow e (EInt i)
+
+  -- Several elements grouped together, with cardinality, for example (OH)2 in Ca(OH)2
+  -- (c)i ->d c ^ i
+  Parens Exp Int :: Exp
+  Parens c i = EPow c (EInt i)
+
+  -- Concatenate different parts within a compound
+  -- e1 e2 ->d e1 * e2
+  Bond Exp Exp :: Exp
+  Bond e1 e2 = EMul e1 e2
+
+  -- A compound, with cardinality, for example 2H2O
+  -- iC ->d c ^ i
+  Compound Int Exp :: Exp
+  Compound i c = EPow c (EInt i)
+
+  -- Energy as part of the equation. Not involved in balancing.
+  -- energy ->d 1
+  Energy :: Exp
+  Energy = EInt 1
+
+  -- A plus sign in the equation.
+  -- e1 + e2 -> e1 * e2
+  Plus Exp Exp :: Exp
+  Plus e1 e2 = EMul e1 e2
+
+  -- An equation with two sides and a condition.
+  --     s
+  -- e1 ---> e2 ->d e1 == e2
+  Equation Exp String Exp :: Exp
+  Equation e1 s e2 = EEq e1 e2
+
+filter where
+
+  use extension (..)
+  use host ( VInt, TInt, VBool, TBool )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )

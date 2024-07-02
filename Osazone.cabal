@@ -1,0 +1,261 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           Osazone
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/vbcpascal/Osazone#readme>
+homepage:       https://github.com/vbcpascal/Osazone#readme
+bug-reports:    https://github.com/vbcpascal/Osazone/issues
+author:         vbcpascal
+maintainer:     vbcpascal@outlook.com
+copyright:      2021 vbcpascal
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/vbcpascal/Osazone
+
+library
+  exposed-modules:
+      Config.Lifting.Builder
+      Config.Lifting.Creator
+      Config.Lifting.RDReport
+      Config.Osazone.Dump
+      Config.Osazone.Reader
+      Config.Review
+      Config.YamlReader
+      Language.Dependency.Dependency
+      Language.Dependency.Resolver
+      Language.Osazone
+      Language.Osazone.AST
+      Language.Osazone.Parser.Combinators
+      Language.Osazone.Parser.CST
+      Language.Osazone.Parser.GeneralParser
+      Language.Osazone.Parser.Layout
+      Language.Osazone.Parser.ModuleParser
+      Language.Osazone.Parser.ResultPrinter
+      Language.Osazone.Parser.Scanner
+      Language.Osazone.Parser.Token
+      Language.Osazone.Parser.Translation
+      Language.Osazone.Pass
+      Language.Osazone.Pass.Application
+      Language.Osazone.Pass.ImportRenaming
+      Language.Osazone.Pass.NameResolution
+      Language.Osazone.Pass.Rename
+      Language.Osazone.Pass.Simplify
+      Language.Osazone.Pass.Simplify.AliasPropagation
+      Language.Osazone.Pass.Simplify.CaseCase
+      Language.Osazone.Pass.Simplify.ConstPropagation
+      Language.Osazone.Pass.Standardization
+      Lifting.Extension
+      Lifting.Filter
+      Lifting.Lifting
+      Lifting.Lifting.Filter
+      Lifting.Lifting.SugarLifting
+      Lifting.Parser
+      Lifting.Sugar
+      Target.Haskell.Files.IntrpDotHs
+      Target.Haskell.Files.MainDotHs
+      Target.Haskell.Files.MetaFile
+      Target.Haskell.Files.MetaMonadFile
+      Target.Haskell.Files.ReplDotHs
+      Target.Haskell.Files.RuntimeDotHs
+      Target.Haskell.Files.ServerDotHs
+      Target.Haskell.Generator
+      Target.Haskell.InterfaceGen
+      Target.Haskell.ServerGenerator
+      Target.Haskell.Text
+      Target.Operational.Generator
+      Utils.AnsiPretty
+      Utils.ErrorMessage
+      Utils.Functions
+      Utils.Pretty
+      Utils.StringTemplate
+      Utils.System
+  other-modules:
+      Paths_Osazone
+  hs-source-dirs:
+      src
+  default-extensions:
+      ConstraintKinds
+      DataKinds
+      TypeOperators
+      RankNTypes
+      TypeFamilies
+      DeriveFunctor
+      DeriveFoldable
+      DeriveGeneric
+      DeriveLift
+      DeriveAnyClass
+      DeriveTraversable
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      StandaloneDeriving
+      EmptyDataDeriving
+      FlexibleContexts
+      FlexibleInstances
+      QuantifiedConstraints
+      MultiParamTypeClasses
+      FunctionalDependencies
+      TypeApplications
+      ScopedTypeVariables
+      PatternSynonyms
+      ViewPatterns
+      LambdaCase
+      TupleSections
+      BangPatterns
+      RecordWildCards
+      BlockArguments
+      DuplicateRecordFields
+      QuasiQuotes
+  build-depends:
+      HStringTemplate
+    , ansi-terminal
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
+    , exceptions
+    , filepath
+    , hspec
+    , mtl
+    , parsec
+    , pretty-simple
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , raw-strings-qq
+    , text
+    , transformers
+    , yaml
+  default-language: Haskell2010
+
+executable Osazone-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_Osazone
+  hs-source-dirs:
+      app
+  default-extensions:
+      ConstraintKinds
+      DataKinds
+      TypeOperators
+      RankNTypes
+      TypeFamilies
+      DeriveFunctor
+      DeriveFoldable
+      DeriveGeneric
+      DeriveLift
+      DeriveAnyClass
+      DeriveTraversable
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      StandaloneDeriving
+      EmptyDataDeriving
+      FlexibleContexts
+      FlexibleInstances
+      QuantifiedConstraints
+      MultiParamTypeClasses
+      FunctionalDependencies
+      TypeApplications
+      ScopedTypeVariables
+      PatternSynonyms
+      ViewPatterns
+      LambdaCase
+      TupleSections
+      BangPatterns
+      RecordWildCards
+      BlockArguments
+      DuplicateRecordFields
+      QuasiQuotes
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      HStringTemplate
+    , Osazone
+    , ansi-terminal
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
+    , exceptions
+    , filepath
+    , hspec
+    , mtl
+    , parsec
+    , pretty-simple
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , raw-strings-qq
+    , text
+    , transformers
+    , yaml
+  default-language: Haskell2010
+
+test-suite Osazone-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_Osazone
+  hs-source-dirs:
+      test
+  default-extensions:
+      ConstraintKinds
+      DataKinds
+      TypeOperators
+      RankNTypes
+      TypeFamilies
+      DeriveFunctor
+      DeriveFoldable
+      DeriveGeneric
+      DeriveLift
+      DeriveAnyClass
+      DeriveTraversable
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      StandaloneDeriving
+      EmptyDataDeriving
+      FlexibleContexts
+      FlexibleInstances
+      QuantifiedConstraints
+      MultiParamTypeClasses
+      FunctionalDependencies
+      TypeApplications
+      ScopedTypeVariables
+      PatternSynonyms
+      ViewPatterns
+      LambdaCase
+      TupleSections
+      BangPatterns
+      RecordWildCards
+      BlockArguments
+      DuplicateRecordFields
+      QuasiQuotes
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      HStringTemplate
+    , Osazone
+    , ansi-terminal
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
+    , exceptions
+    , filepath
+    , hspec
+    , mtl
+    , parsec
+    , pretty-simple
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , raw-strings-qq
+    , text
+    , transformers
+    , yaml
+  default-language: Haskell2010

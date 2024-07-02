@@ -1,0 +1,107 @@
+name:                Osazone
+version:             0.1.0.0
+github:              "vbcpascal/Osazone"
+license:             BSD3
+author:              "vbcpascal"
+maintainer:          "vbcpascal@outlook.com"
+copyright:           "2021 vbcpascal"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/vbcpascal/Osazone#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- hspec
+- parsec
+- mtl
+- containers 
+- prettyprinter
+- yaml
+- text
+- bytestring
+- raw-strings-qq
+- HStringTemplate
+- pretty-simple
+- filepath
+- directory
+- exceptions
+- ansi-terminal
+- transformers
+- prettyprinter-ansi-terminal
+
+default-extensions:
+# Type level goodies
+- ConstraintKinds
+- DataKinds
+- TypeOperators
+- RankNTypes
+# Type families
+- TypeFamilies
+# Deriving
+- DeriveFunctor
+- DeriveFoldable
+- DeriveGeneric
+- DeriveLift
+- DeriveAnyClass
+- DeriveTraversable
+- DerivingStrategies
+- GeneralizedNewtypeDeriving
+- StandaloneDeriving
+- EmptyDataDeriving
+# Flexible type classes
+- FlexibleContexts
+- FlexibleInstances
+- QuantifiedConstraints
+- MultiParamTypeClasses
+- FunctionalDependencies
+# Type applications
+- TypeApplications
+- ScopedTypeVariables
+# Pattern synonyms
+- PatternSynonyms
+# Grammar candies
+- ViewPatterns
+- LambdaCase
+- TupleSections
+- BangPatterns
+- RecordWildCards
+- BlockArguments
+- DuplicateRecordFields
+- QuasiQuotes
+
+library:
+  source-dirs: src
+
+executables:
+  Osazone-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - Osazone
+
+tests:
+  Osazone-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - Osazone

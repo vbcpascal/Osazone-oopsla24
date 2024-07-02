@@ -1,0 +1,13 @@
+module Meta.Monad.UnsafeIO where
+
+import Haskell.Prelude as HS
+import Haskell.GHC.IO as HSIO
+
+[#pure]
+unsafeReadInt :: Int
+unsafeReadInt = HSIO.unsafePerformIO (HS.read HS.<$> HS.getLine) 
+
+[#pure]
+[#gentype "Prelude.Show a => a -> ()"]
+unsafePrint ::?
+unsafePrint e = HSIO.unsafePerformIO (HS.print e)

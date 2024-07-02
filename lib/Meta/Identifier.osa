@@ -1,0 +1,5 @@
+module Meta.Identifier where
+
+import Prelude
+
+type Id = String

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>LC: Big-Step Operational Semantics</title>
+  <script id="MathJax-script" src="https://cdn.bootcss.com/mathjax/3.0.5/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+<a href="../index.html">back</a>
+<p> \[ \frac{ }{ {\mathbf{EAbs} ~ x ~ t ~ e \Downarrow_S \mathbf{EAbs} ~ x ~ t ~ e} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EAbs}~x ~ t ~ e} \qquad  {e_{2} \Downarrow_S v_{2}} \qquad  {e[v_{2}/x] \Downarrow_S v} }{ {\mathbf{EApp} ~ e_{1} ~ e_{2} \Downarrow_S v} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EFalse} \Downarrow_S \mathbf{EFalse}} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{ETrue}} \qquad  {e_{2} \Downarrow_S r} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ {e_{1} \Downarrow_S \mathbf{EFalse}} \qquad  {e_{3} \Downarrow_S r} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} \Downarrow_S r} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{ETrue} \Downarrow_S \mathbf{ETrue}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EVar} ~ x \Downarrow_S undefined} } \] </p>
+
+
+
+
+
+
+
+
+<p> \[ \frac{ {updatet ~ x ~ t} \qquad  {e : t_{1}} \qquad  {restoret} }{ {\mathbf{EAbs} ~ x ~ t ~ e : \mathbf{TArrow} ~ t ~ t_{1}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TArrow}~t_{1} ~ t_{2}} \qquad  {e_{2} : t} \qquad  {(=) ~ t ~ t_{1}} }{ {\mathbf{EApp} ~ e_{1} ~ e_{2} : t_{2}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{EFalse} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ {e_{1} : \mathbf{TBool}} \qquad  {e_{2} : t_{2}} \qquad  {e_{3} : t_{3}} \qquad  {(=) ~ t_{2} ~ t_{3}} }{ {\mathbf{EIf} ~ e_{1} ~ e_{2} ~ e_{3} : t_{2}} } \] </p>
+<p> \[ \frac{ }{ {\mathbf{ETrue} : \mathbf{TBool}} } \] </p>
+<p> \[ \frac{ {r \Leftarrow_T searcht ~ x} }{ {\mathbf{EVar} ~ x : r} } \] </p>
+</body>
+
+</html>

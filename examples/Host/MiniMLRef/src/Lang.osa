@@ -1,0 +1,76 @@
+module Lang where
+
+import Prelude
+import Data.Map
+import Meta.Identifier
+
+type Program = Declr
+
+data Declr
+  = DData Id [Constr] Declr
+  | DLet Id Exp Declr
+  | DExp Exp
+
+data Constr = Constr Id [Type]
+
+type Loc = Int
+
+data Exp
+  = EVar Id
+  | EAbs Id Type Exp
+  | EApp Exp Exp
+  | ELet Id Exp Exp
+  | ECon Id [Exp]
+  | ECase Exp [Branch]
+  | EFix Exp
+  | ESeq Exp Exp
+  | EBool Bool
+  | EUnit
+  -- Bool
+  | EIf Exp Exp Exp
+  -- Number
+  | EInt Int
+  | EPlus Exp Exp
+  | ESub Exp Exp
+  | EMul Exp Exp
+  | EPow Exp Exp
+  | EEq Exp Exp
+  | ELt Exp Exp
+  -- String
+  | EStr String
+  | EConcat Exp Exp
+  | ECopy Exp Exp
+  -- List
+  | ENil
+  | ECons Exp Exp
+  -- IO (unsafe)
+  | EReadInt
+  | EPrint Exp
+  -- Reference
+  | ERef Exp
+  | EDeref Exp
+  | EAsgn Exp Exp
+
+data Branch = Branch Pattern Exp
+data Pattern = Pattern Id [Id]
+
+type EEnv = Map Id Val
+
+data Val
+  = VCon Id [Val]
+  | VClos Id Type Exp EEnv
+  | VFixClos Id Type Exp EEnv
+  | VStr String
+  | VInt Int
+  | VBool Bool
+  | VUnit
+  | VLoc Loc
+
+data Type
+  = TCon Id
+  | TArrow Type Type
+  | TStr
+  | TInt
+  | TBool
+  | TUnit
+  | TRef Type

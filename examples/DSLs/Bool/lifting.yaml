@@ -1,0 +1,12 @@
+# Configurations of Bool by lifting
+
+# The name of the language after lifting
+name:       Bool
+
+# The path of core language definiton
+core:       ../../Host/LC
+
+# The extension files 
+extensions:
+
+  - Bool

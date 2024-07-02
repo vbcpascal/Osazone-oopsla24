@@ -1,0 +1,133 @@
+module Robot where
+
+sugar extension where
+
+  -- The program entrance. Defines the position and direction of the robot.
+  -- Script body ->d
+  --   data Dir = Dir Int Int
+  --   let x = ref 0 in
+  --     let y = ref 0 in
+  --       let dx = ref 1 in
+  --         let dy = ref 0 in
+  --           body
+  Script Declr :: Declr
+  Script body = DData "Dir" [ Constr "Dir" [TInt, TInt] ] (DLet "x" (ERef (EInt 0)) (DLet "y" (ERef (EInt 0)) (DLet "dx" (ERef (EInt 1)) (DLet "dy" (ERef (EInt 0)) body))))
+
+  -- Auxilliary compound assignment
+  -- e1 += e2 ->d e1 := !e1 + e2
+  AddAsgn Exp Exp :: Exp
+  AddAsgn e1 e2 = EAsgn e1 (EPlus (EDeref e1) e2)
+
+  -- turnLeft ->d fresh tmp in
+  --   let tmp = !dx in dx := 0 - !dy; dy != tmp
+  TurnLeft :: Exp
+  TurnLeft = @fresh tmp
+    in ELet tmp (EDeref (EVar "dx")) (ESeq (EAsgn (EVar "dx") (ESub (EInt 0) (EDeref (EVar "dy")))) (EAsgn (EVar "dy") (EVar tmp)))
+
+  -- step ->d x += dy; y += dy
+  Step :: Exp
+  Step = ESeq (AddAsgn (EVar "x") (EDeref (EVar "dx"))) (AddAsgn (EVar "y") (EDeref (EVar "dy")))
+
+  -- General recursive sugars for repetitions.
+  -- repeat i times
+  --   e
+  -- end
+  --   ->d
+  -- if i == 0
+  -- then
+  --   ()
+  -- else
+  --   repeat i - 1 times
+  --     e
+  --   end
+  Repeat Exp Exp :: Exp
+  Repeat i e = EIf (EEq i (EInt 0)) EUnit (ESeq e (Repeat (ESub i (EInt 1)) e))
+
+  -- while cond do
+  --   e
+  -- end
+  --   ->d
+  -- if cond
+  -- then
+  --   e
+  --   while cond do
+  --     e
+  --   end
+  -- else
+  --   ()
+  While Exp Exp :: Exp
+  While cond e = EIf cond (ESeq e (While cond e)) EUnit
+
+  -- trace s ->d print s
+  Trace String :: Exp
+  Trace s = EPrint (EStr s)
+
+  -- north ->d Dir 0 1
+  North :: Exp
+  North = ECon "Dir" [EInt 0, EInt 1]
+
+  -- south ->d Dir 0 -1
+  South :: Exp
+  South = ECon "Dir" [EInt 0, ESub (EInt 0) (EInt 1)]
+
+  -- east ->d Dir 1 0
+  East :: Exp
+  East = ECon "Dir" [EInt 1, EInt 0]
+
+  -- west ->d Dir -1 0
+  West :: Exp
+  West = ECon "Dir" [ESub (EInt 0) (EInt 1), EInt 0]
+
+  -- not e ->d if e then False else True
+  Not Exp :: Exp
+  Not e = EIf e (EBool False) (EBool True)
+
+  -- e1 and e2 ->d if e1 then e2 else False
+  And Exp Exp :: Exp
+  And e1 e2 = EIf e1 e2 (EBool False)
+
+  -- e1 or e2 ->d if e1 then True else e2
+  Or Exp Exp :: Exp
+  Or e1 e2 = EIf e1 (EBool True) e2
+
+  -- heading dir ->d fresh dx', dy' in
+  --   case dir of
+  --     Dir dx' dy' -> !dx == dx' and !dy == dy'
+  Heading Exp :: Exp
+  Heading dir = @fresh dx' dy'
+    in ECase dir [ Branch (Pattern "Dir" [dx', dy']) (And (EEq (EDeref (EVar "dx")) (EVar dx')) (EEq (EDeref (EVar "dy")) (EVar dy'))) ]
+
+  -- Defining a routine. We desugar to a let, so we need the rest of the program.
+  -- The body of a routine is delayed by an abstraction.
+  -- routine name means
+  --   body
+  -- end
+  -- rest
+  --   ->d
+  -- fresh u in
+  --   let name = \u -> body in rest
+  Routine Id Exp Exp :: Exp
+  Routine name body rest = @fresh u
+    in ELet name (EAbs u TUnit body) rest
+
+  -- Calling a routine.
+  -- name ->d name ()
+  RoutineCall Id :: Exp
+  RoutineCall name = EApp (EVar name) EUnit
+
+  -- printPos ->d print x; print y
+  PrintPos :: Exp
+  PrintPos = ESeq (EPrint (EDeref (EVar "x"))) (EPrint (EDeref (EVar "y")))
+
+filter where
+
+  use extension (..)
+
+  use host ( DExp, ESeq )
+  use host ( EInt, VInt, TInt, EUnit, VUnit, TUnit )
+  use host ( EStr, VStr, TStr, EBool, VBool, TBool )
+  use host ( EVar, VCon, VLoc, TRef, EAdd, ESub, VClos, TArrow )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch )

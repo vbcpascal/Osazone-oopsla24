@@ -1,0 +1,12 @@
+# Configurations of Pretty
+
+# The name of the language after lifting
+name:       Pretty
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - Pretty

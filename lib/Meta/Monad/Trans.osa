@@ -1,0 +1,16 @@
+module Meta.Monad.Trans where
+
+import Haskell.Control.Monad.Trans.Class as HS
+import Haskell.Data.Functor.Identity as HSI
+
+type Identity = HSI.Identity
+
+[#monadic]
+[#gentype "(Control.Monad.Trans.Class.MonadTrans t, Monad m) => m a -> t m a"]
+lift ::?
+lift = HS.lift
+
+[#pure]
+[#gentype "Identity a -> a"]
+runId ::?
+runId = HSI.runIdentity

@@ -1,0 +1,65 @@
+module Forth where
+
+sugar extension where
+
+  -- Defining a new operation. Note the body `e` is delayed by an lambda abstraction.
+  -- : x e ; rest ->d let x = \u -> e in rest
+  Let Id Exp Exp :: Exp
+  Let x e rest = @fresh u in ELet x (TArrow TUnit TUnit) (EAbs u TUnit e) rest
+
+  -- Refer to a user-defined operation to call it.
+  -- f ->d f ()
+  Call Id :: Exp
+  Call f = EApp (EVar f) EUnit
+
+  -- Operations written sequentially are desugared into MiniML sequences.
+  -- first rest ->d first ; rest
+  Seq Exp Exp :: Exp
+  Seq first rest = ESeq first rest
+
+  -- A literal pushes itself onto the stack.
+  -- i ->d PUSH i
+  Lit Int :: Exp
+  Lit i = EPush (EInt i)
+
+  -- DROP ->d fresh x in let x = POP in ()
+  Drop :: Exp
+  Drop = @fresh x in ELet x TInt EPop EUnit
+
+  -- The end of a sequence (Seq) of operations.
+  -- (end of sequence) ->d ()
+  End :: Exp
+  End = EUnit
+
+  -- The dot should have displayed the top item on the stack.
+  -- We instead simply make the Forth program returns it.
+  -- To actually implement the real `.`, we should further add the IO monad.
+  -- . ->d POP
+  Dot :: Exp
+  Dot = EPrint EPop
+
+  -- DUP -> fresh x in let x = POP in PUSH x; PUSH x
+  Dup :: Exp
+  Dup = @fresh x in ELet x TInt EPop (ESeq (EPush (EVar x)) (EPush (EVar x)))
+
+  -- + ->d fresh x, y in let y = POP in let x = POP in PUSH (x + y)
+  Plus :: Exp
+  Plus = @fresh x y in ELet y TInt EPop (ELet x TInt EPop (EPush (EPlus (EVar x) (EVar y))))
+
+  -- - ->d fresh x, y in let y = POP in let x = POP in PUSH (x - y)
+  Sub :: Exp
+  Sub = @fresh x y in ELet y TInt EPop (ELet x TInt EPop (EPush (ESub (EVar x) (EVar y))))
+
+  -- * ->d fresh x, y in let y = POP in let x = POP in PUSH (x * y)
+  Mul :: Exp
+  Mul = @fresh x y in ELet y TInt EPop (ELet x TInt EPop (EPush (EMul (EVar x) (EVar y))))
+
+filter where
+
+  use extension (..)
+  use host ( EInt, VInt, TInt, EUnit, VUnit, TUnit, DExp, VClos, TArrow )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )
+

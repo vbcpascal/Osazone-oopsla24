@@ -1,0 +1,12 @@
+module Match where
+
+import Lang
+import Data.Map
+
+[#pure]
+match :: Pattern -> Val -> Bool
+match (Pattern c2 vars) (VCon c1 vals) = c1 == c2
+
+[#pure]
+matchVars :: Pattern -> Val -> EEnv
+matchVars (Pattern c2 vars) (VCon c1 vals) = fromList (zip vars vals)

@@ -1,0 +1,15 @@
+module Meta.Monad.IO where
+
+import Haskell.Prelude as HS
+
+type IO = HS.IO
+
+[#monadic]
+[#gentype "Prelude.Show a => a -> IO ()"]
+print ::?
+print = HS.print
+
+[#monadic]
+[#gentype "Prelude.Read a => IO a"]
+readLn ::?
+readLn = HS.readLn

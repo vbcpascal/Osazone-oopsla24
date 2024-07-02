@@ -1,0 +1,12 @@
+# Configurations of ListComprehension
+
+# The name of the language after lifting
+name:       ListComprehension
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - ListComprehension

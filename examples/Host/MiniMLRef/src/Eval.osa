@@ -1,0 +1,160 @@
+module Eval where
+
+import Lang
+import Match
+import Data.Map
+import Meta.Monad.State
+import Meta.Monad.Trans
+import Meta.Monad.Context
+import Meta.Monad.UnsafeIO
+import Meta.Identifier
+import Meta.Semantics
+import Functions
+
+type Store = (Int, Map Int Val)
+
+run for Declr :: Val
+  monad (State Store)
+  monad (Context Id Val)
+  as R
+
+run (DData _ _ d) = run d
+run (DLet x e d) =
+  let v = eval e
+      _ = insertCtx x v
+  in  run d
+run (DExp e) = eval e
+
+eval for Exp :: Val
+  monad (State Store)
+  monad (Context Id Val)
+  as S
+
+eval (EVar x) = searchCtx x
+eval (EAbs x t e) =
+  let ctx = getCtx
+  in  VClos x t e ctx
+eval (EApp e1 e2) =
+  let VClos x t e env = eval e1
+      _ = local
+      _ = mergeCtx1 env
+      v2 = eval e2
+      _ = insertCtx x v2
+      v = eval e
+      _ = restore
+  in  v
+eval (ELet x e1 e2) =
+  let v1 = eval e1
+      _ = local
+      _ = insertCtx x v1
+      v2 = eval e2
+      _ = restore
+  in v2
+eval (ECon c es) =
+  let vs = mmap eval es
+  in  VCon c vs
+eval (ECase e brs) =
+  let v = eval e
+      v' = evalBranch brs v
+  in  v'
+eval (ESeq e1 e2) =
+  let _ = eval e1
+      v = eval e2
+  in v
+eval (EStr str) = VStr str
+eval (EInt n) = VInt n
+eval (EBool b) = VBool b
+eval EUnit = VUnit
+eval (EIf cond e1 e2) =
+  let VBool vc = eval cond
+  in if vc
+    then let v1 = eval e1
+         in v1
+    else let v2 = eval e2
+         in v2
+eval (EPlus e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VInt (v1 + v2)
+eval (ESub e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VInt (v1 - v2)
+eval (EMul e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VInt (v1 * v2)
+eval (EPow e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VInt (v1 ^ v2)
+eval (EEq e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VBool (v1 == v2)
+eval (ELt e1 e2) =
+  let VInt v1 = eval e1
+      VInt v2 = eval e2
+  in  VBool (v1 < v2)
+eval (EConcat e1 e2) =
+  let VStr s1 = eval e1
+      VStr s2 = eval e2
+  in  VStr (s1 ++ s2)
+eval (ECopy e1 e2) =
+  let VInt v = eval e1
+      VStr s = eval e2
+  in  VStr (copy v s)
+eval EReadInt =
+  let n = unsafeReadInt
+  in  VInt n
+eval (EPrint e) =
+  let v = eval e
+      _ = unsafePrint v
+  in VUnit
+eval (ERef e) = 
+  let v = eval e
+      l = alloc
+      _ = store l v
+  in  VLoc l
+eval (EDeref e) =
+  let VLoc l = eval e
+      v = fetch l
+  in  v
+eval (EAsgn e1 e2) =
+  let VLoc l = eval e1
+      v2 = eval e2
+      _ = store l v2
+  in  VUnit
+
+evalBranch for [Branch] :: Val -> Val
+  monad (State Store)
+  monad (Context Id Val)
+
+evalBranch ((:) (Branch pat e) brs) v =
+  if match pat v
+    then let env = matchVars pat v
+             _ = local
+             _ = mergeCtx1 env
+             v' = eval e
+             _ = restore
+         in v'
+    else evalBranch brs v
+evalBranch brs v = undefined
+
+[#monadic]
+alloc :: S Loc
+alloc = let (n, st) = lift get
+            _       = lift (put (n + 1, st))
+        in n
+
+[#monadic]
+store :: Loc -> Val -> S ()
+store i v = let (n, st) = lift get
+                _       = lift (put (n, insert i v st))
+            in  ()
+
+[#monadic]
+fetch :: Loc -> S Val
+fetch i = let (n, st) = lift get
+              v       = st ! i
+          in  v

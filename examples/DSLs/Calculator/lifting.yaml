@@ -1,0 +1,12 @@
+# Configurations of Calculator 
+
+# The name of the language after lifting
+name:       Calculator
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions: 
+
+  - Calculator

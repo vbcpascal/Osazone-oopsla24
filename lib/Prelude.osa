@@ -1,0 +1,33 @@
+module Prelude where
+
+[#compile Prelude]
+[#defined
+  undefined
+  (==)
+  (/=)
+  (+)
+  (-)
+  (*)
+  (/)
+  (^)
+  (>=)
+  (<=)
+  (>)
+  (<)
+  (&&)
+  (||)
+  (:)
+  (++)
+  Int
+  Bool
+  String
+  True
+  False
+  map
+  zip
+  head
+  tail
+  init
+  last
+  length
+]

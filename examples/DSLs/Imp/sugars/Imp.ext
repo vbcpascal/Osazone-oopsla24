@@ -1,0 +1,42 @@
+module Imp where
+
+sugar extension where
+
+  NewVar Id Exp Exp :: Exp
+  NewVar x e1 e2 = ELet x (ERef e1) e2
+
+  Asgn Id Exp :: Exp
+  Asgn x e = EAsgn (EVar x) e
+
+  PlusAsgn Id Exp :: Exp
+  PlusAsgn x e = EAsgn (EVar x) (EPlus (EDeref (EVar x)) e)
+
+  RVar Id :: Exp
+  RVar x = EDeref (EVar x)
+
+  Or Exp Exp :: Exp
+  Or e1 e2 = EIf e1 (EBool True) e2
+
+  Le Exp Exp :: Exp
+  Le e1 e2 = Or (ELt e1 e2) (EEq e1 e2)
+
+  Pass :: Exp
+  Pass = EUnit
+
+  While Exp Exp :: Exp
+  While e1 e2 = EIf e1 (ESeq e2 (While e1 e2)) EUnit
+
+  When Exp Exp :: Exp
+  When e1 e2 = EIf e1 e2 EUnit
+
+  Unless Exp Exp :: Exp
+  Unless e1 e2 = EIf e1 EUnit e2
+
+filter where
+
+  use extension (..)
+  use extension ( DExp, VLoc, TRef, VUnit, TUnit, EInt, VInt, TInt, VBool, TBool, EBool, EPlus, ESub, EMul, EEq, ELt, ESeq )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )

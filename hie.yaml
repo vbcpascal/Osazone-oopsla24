@@ -1,0 +1,8 @@
+cradle:
+  stack:
+  - path: "./src"
+    component: "Osazone:lib"
+  - path: "./app"
+    component: "Osazone:exe:Osazone-exe"
+  - path: "./test"
+    component: "Osazone:test:Osazone-test"

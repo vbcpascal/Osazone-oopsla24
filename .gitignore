@@ -1,0 +1,14 @@
+# Haskell related
+.stack-work/
+*~
+
+# VSCode related
+.vscode/
+
+# Examples
+**/build/*
+
+# Mac
+**/.DS_Store
+
+**/.osazone/*

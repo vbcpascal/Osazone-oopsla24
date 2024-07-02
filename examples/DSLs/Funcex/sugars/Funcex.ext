@@ -1,0 +1,67 @@
+module Funcex where
+
+sugar extensions where
+
+  Or1 Exp Exp :: Exp
+  Or1 e1 e2 = ELet "x" e1 (EIf (EVar "x") (EVar "x") e2)
+
+  Or2 Exp Exp :: Exp
+  Or2 e1 e2 = @fresh x 
+    in ELet x e1 (EIf (EVar x) (EVar x) e2)
+
+  NewVar Id Exp Exp :: Exp
+  NewVar x e1 e2 = ELet x (ERef e1) e2
+
+  Lets [(Id, Exp)] Exp :: Exp
+  Lets ((:) (x, e1) bs) e = ELet x e1 (Lets bs e)
+
+  Lets [(Id, Exp)] Exp :: Exp
+  Lets nil e = e
+
+  While Exp Exp :: Exp
+  While e1 e2 = EIf e1 (ESeq e2 (While e1 e2)) EUnit
+
+redefine Subst.subst where
+
+  subst (EVar x) y e' = if x == y then e' else EVar x
+  subst (EAbs x e) y e' = if x == y then EAbs x e else EAbs x (subst e y e')
+  subst (EAppV e1 e2) x e' = EAppV (subst e1 x e') (subst e2 x e')
+  subst (EAppN e1 e2) x e' = EAppN (subst e1 x e') (subst e2 x e')
+  subst ETrue x e' = ETrue
+  subst EFalse x e' = EFalse
+  subst (EIf e1 e2 e3) x e' =
+    EIf (subst e1 x e') (subst e2 x e') (subst e3 x e')
+  subst (EInt i) x e' = EInt i
+  subst (EAdd e1 e2) x e' = EAdd (subst e1 x e') (subst e2 x e') 
+  subst (EEq e1 e2) x e' = EEq (subst e1 x e') (subst e2 x e') 
+  subst (ELt e1 e2) x e' = ELt (subst e1 x e') (subst e2 x e') 
+  subst EUnit x e' = EUnit
+  subst (ELet y e1 e2) x e' = if x == y
+    then ELet y (subst e1 x e') e2
+    else ELet y (subst e1 x e') (subst e2 x e')
+  subst (ESeq e1 e2) x e' = ESeq (subst e1 x e') (subst e2 x e') 
+  subst (EPair e1 e2) x e' = EPair (subst e1 x e') (subst e2 x e') 
+  subst (EFst e) x e' = EFst (subst e x e')
+  subst (ESnd e) x e' = ESnd (subst e x e')
+  subst (EInl e) x e' = EInl (subst e x e')
+  subst (EInr e) x e' = EInr (subst e x e')
+  subst (ECase e y e1 z e2) x e' = ECase (subst e x e') x (if x == y then e1 else subst e1 x e') y (if x == z then e2 else subst e2 x e')
+  subst ENil x e' = ENil
+  subst (ECons e1 e2) x e' = ECons (subst e1 x e') (subst e2 x e') 
+  subst (EHead e) x e' = EHead (subst e x e')
+  subst (ETail e) x e' = ETail (subst e x e')
+  subst (EIsNil e) x e' = EIsNil (subst e x e')
+  subst (EFix e) x e' = EFix (subst e x e')
+  subst (ERef e) x e' = ERef (subst e x e')
+  subst (EDeref e) x e' = EDeref (subst e x e')
+  subst (EAsgn e1 e2) x e' = EAsgn (subst e1 x e') (subst e2 x e') 
+  subst (ELoc l) x e' = ELoc l
+  subst (Or1 e1 e2) x e' = if x == "x" 
+    then Or1 (subst e1 x e') e2
+    else Or1 (subst e1 x e') (subst e2 x e')
+  subst (Or2 e1 e2) x e' = Or2 (subst e1 x e') (subst e2 x e')
+  subst (Lets ((:) (y, e1) bds) e2) x e' = if x == y 
+    then ELet y (subst e1 x e') (Lets bds e2)
+    else ELet y (subst e1 x e') (subst (Lets bds e2) x e')
+  subst (Lets nil e) x e' = subst e x e'
+  subst (While e1 e2) x e' = While (subst e1 x e') (subst e2 x e')

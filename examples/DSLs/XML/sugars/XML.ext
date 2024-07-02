@@ -1,0 +1,54 @@
+module XML where
+
+sugar extension where
+
+  -- The program entrance, desugared into definitions several data types.
+  -- Prog { e } ->d
+  --   data Node = Element Str AttrList NodeList | Text
+  --   data NodeList = NNil | NCons Node NodeList
+  --   data Attr = Attr Str Str
+  --   data AttrList = ANil | ACons Attr AttrList
+  --   e
+  Prog Exp :: Declr
+  Prog e = DData "Node" [Constr "Element" [TStr, TCon "AttrList", TCon "NodeList"], Constr "Text" [TStr]]
+    (DData "NodeList" [Constr "NNil" [], Constr "NCons" [TCon "Node", TCon "NodeList"]]
+      (DData "Attr" [Constr "Attr" [TStr, TStr]]
+        (DData "AttrList" [Constr "ANil" [], Constr "ACons" [TCon "Attr", TCon "AttrList"]]  
+          (DExp e))))
+
+  -- An XML element, desugared into an invocation of the `Element` constructor.
+  -- <tag attrs>children</tag> ->d Element tag attr children
+  Element Exp Exp Exp :: Exp
+  Element tag attrs children = ECon "Element" [tag, attrs, children]
+
+  -- Text content in XML, desugared into an invocation of the `Text` constructor.
+  -- text(literal) ->d Text text
+  Text Exp :: Exp
+  Text text = ECon "Text" [text]
+
+  -- The list of child nodes of an element, desugared into a `NodeList`.
+  -- first rest ->d NCons first rest
+  NodeCons Exp Exp :: Exp
+  NodeCons first rest = ECon "NCons" [first, rest]
+
+  -- (end of node list) ->d NNil
+  NodeEnd :: Exp
+  NodeEnd = ECon "NNil" []
+
+  -- The list of attributes of an element, desugared into a `AttrList`.
+  -- name=value attrs ->d ACons (Attr name value) attrs
+  Attr Exp Exp Exp :: Exp
+  Attr name value attrs = ECon "ACons" [ECon "Attr" [name, value], attrs]
+
+  -- (end of attr list) ->d ANil
+  AttrEnd :: Exp
+  AttrEnd = ECon "ANil" []
+
+filter where
+
+  use extension (..)
+  use host ( ECon, VCon, TCon, EStr, VStr, TStr )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch )

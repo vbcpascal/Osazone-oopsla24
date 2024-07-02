@@ -1,0 +1,38 @@
+module StateMachine where
+
+sugar extension where
+
+  Prog Declr :: Declr
+  Prog d = DData "Rule" 
+    [ Constr "Rule" [TStr, TStr, TStr, TCon "Rule"]
+    , Constr "End" []
+    ] d
+
+  -- e1 and e2 ->d if e1 e2 false
+  And Exp Exp :: Exp
+  And e1 e2 = EIf e1 e2 (EBool False)
+
+  -- Rules (...); d ->d let rules = ..; d
+  Rules Exp Declr :: Declr
+  Rules e d = DLet "rules" e d
+
+  -- (a -c-> b; r) ->d Rule a c b r
+  Rule Exp Exp Exp Exp :: Exp
+  Rule e1 e2 e3 e = ECon "Rule" [e1, e2, e3, e]
+
+  -- st, run e ->d run st e with rules
+  Run Exp Exp :: Exp
+  Run e1 e2 = RunWith e1 e2 (EVar "rules")
+
+  -- run st e with rs ->d 
+  --   case rs of
+  --     Rule from event to rest ->
+  --       if st == from and e == event then to else run st e with rest
+  RunWith Exp Exp Exp :: Exp
+  RunWith e1 e2 e3 = @fresh from event to rest
+    in ECase e3
+        [ Branch (Pattern "Rule" ["from", "event", "to", "rest"])
+           (EIf (And (EStrEq (EVar "from") e1) (EStrEq (EVar "event") e2)) 
+                (EVar "to") 
+                (RunWith e1 e2 (EVar "rest"))) 
+        ]

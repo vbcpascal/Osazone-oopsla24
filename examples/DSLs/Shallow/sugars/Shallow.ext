@@ -1,0 +1,24 @@
+module Shallow where
+
+sugar extension where
+
+  -- Const e ->d e
+  Const Exp :: Exp
+  Const e = e
+
+  -- Plus e1 e2 ->d e1 + e2
+  Plus Exp Exp :: Exp
+  Plus e1 e2 = EPlus e1 e2
+
+  -- Times e1 e2 ->d e1 * e2
+  Times Exp Exp :: Exp
+  Times e1 e2 = EMul e1 e2
+
+filter where
+
+  use extension (..)
+  use host ( EInt, VInt, TInt, DExp )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )

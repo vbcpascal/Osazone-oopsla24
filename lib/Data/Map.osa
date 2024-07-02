@@ -1,0 +1,15 @@
+module Data.Map where
+
+[#compile Data.Map]
+[#defined
+  (!)
+  Map
+  insert
+  union
+  toList
+  fromList
+  empty
+  delete
+  lookup
+  member
+]

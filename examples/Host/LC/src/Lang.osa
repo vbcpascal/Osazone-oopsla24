@@ -1,0 +1,14 @@
+module Lang where
+
+import Meta.Identifier
+
+-- The program entrance
+type Program = Exp
+
+data Exp
+  = ETrue
+  | EFalse
+  | EIf Exp Exp Exp
+  | EVar Id
+  | EAbs Id Exp
+  | EApp Exp Exp

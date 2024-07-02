@@ -1,0 +1,174 @@
+module Pretty where
+
+sugar extension where
+
+  -- The program entrance, desugared to definition of the `Doc` type.
+  -- In `Union x y`, the first line of `x` must always be longer than the first line of `y`.
+  -- Prog { e } ->d
+  --   data Doc = Nil
+  --            | Text Str Doc
+  --            | Line Int Doc
+  --            | Union Doc Doc
+  --   e
+  Prog Exp :: Declr
+  Prog e = DData "Doc"
+             [ Constr "Nil" []
+             , Constr "Text" [TStr, TCon "Doc"]
+             , Constr "Line" [TInt, TCon "Doc"]
+             , Constr "Union" [TCon "Doc", TCon "Doc"]
+             ] (DExp e)
+
+  -- In comments below, we use lower case for the language constructs,
+  -- where MiniML constructors keep their upper cases.
+
+  -- An empty document.
+  -- nil ->d Nil
+  Nil :: Exp
+  Nil = ECon "Nil" []
+
+  -- A document consisted of a string.
+  -- e ->d Text e Nil
+  Text Exp :: Exp
+  Text e = ECon "Text" [e, ECon "Nil" []]
+
+  -- A line break.
+  -- line ->d Line 0 Nil
+  Line :: Exp
+  Line = ECon "Line" [EInt 0, Nil]
+
+  -- Documents can have different layouts, having part of it compressed into one line by replacing line breaks with spaces.
+  -- Group takes a document, and add a possible layout into it, where the whole document is flattened into the same line.
+  -- That is, `group e` behaves the same as `Union (flatten e) e`.
+  -- group e ->d fresh s i x y in
+  --   case e of
+  --     Nil -> Nil
+  --     Line i x -> Union (Text " " (flatten x)) (Line i x)
+  --     Text s x -> Text s (group x)
+  --     Union x y -> Union (group x, y)
+  Group Exp :: Exp
+  Group e = @fresh s i x y
+    in ECase e
+        [ Branch (Pattern "Nil" []) (ECon "Nil" [])
+        , Branch (Pattern "Line" [i, x]) (ECon "Union" [ECon "Text" [EStr " ", Flatten (EVar x)], ECon "Line" [EVar i, EVar x]])
+        , Branch (Pattern "Text" [s, x]) (ECon "Text" [EVar s, Group (EVar x)])
+        , Branch (Pattern "Union" [x, y]) (ECon "Union" [Group (EVar x), EVar y])
+        ]
+
+  -- Flatten the whole document into a single line, taking a line break to a space.
+  -- flatten e ->d fresh s i x y in
+  --   case e of
+  --     Nil -> Nil
+  --     Line i x -> Text " " (flatten x)
+  --     Text s x -> Text s (flatten x)
+  --     Union x y -> flatten x
+  Flatten Exp :: Exp
+  Flatten e = @fresh s i x y
+    in ECase e
+        [ Branch (Pattern "Nil" []) (ECon "Nil" [])
+        , Branch (Pattern "Line" [i, x]) (ECon "Text" [EStr " ", Flatten (EVar x)])
+        , Branch (Pattern "Text" [s, x]) (ECon "Text" [EVar s, Flatten (EVar x)])
+        , Branch (Pattern "Union" [x, y]) (Flatten (EVar x))]
+
+  -- Concatenate two documents.
+  -- e1 <> e2 ->d fresh v1 v2 s i x y in
+  --   let v1 = e1 in    -- force evaluation of e1
+  --     let v2 = e2 in  -- force evaluation of e2
+  --       case v1 of
+  --         Text s x -> Text s (x <> v2)
+  --         Line i x -> Line i (x <> v2)
+  --         Nil -> v2
+  --         Union x y -> Union (x <> v2) (y <> v2)
+  --
+  Concat Exp Exp :: Exp
+  Concat e1 e2 = @fresh v1 v2 s i x y
+    in ELet v1 e1
+         (ELet v2 e2
+           (ECase (EVar v1)
+             [ Branch (Pattern "Text" [s, x]) (ECon "Text" [EVar s, Concat (EVar x) (EVar v2)])
+             , Branch (Pattern "Line" [i, x]) (ECon "Line" [EVar i, Concat (EVar x) (EVar v2)])
+             , Branch (Pattern "Nil" []) (EVar v2)
+             , Branch (Pattern "Union" [x, y]) (ECon "Union" [Concat (EVar x) (EVar v2), Concat (EVar y) (EVar v2)])]))
+
+  -- Make `e` indent `i` spaces.
+  -- nest i e ->d fresh vi s j x y
+  --   let vi = i in              -- force evaluation of i
+  --     case e of
+  --       Text s x -> Text s (nest vi x)
+  --       Line j x -> Line (vi + j) (nest vi x)
+  --       Nil -> Nil
+  --       Union x y -> Union (nest vi x) (nest vi y)
+  Nest Exp Exp :: Exp
+  Nest i e = @fresh vi s j x y
+    in ELet vi i
+         (ECase e
+           [ Branch (Pattern "Text" [s, x]) (ECon "Text" [EVar s, Nest (EVar vi) (EVar x)])
+           , Branch (Pattern "Line" [j, x]) (ECon "Line" [EPlus (EVar vi) (EVar j), Nest (EVar vi) (EVar x)])
+           , Branch (Pattern "Nil" []) (ECon "Nil" [])
+           , Branch (Pattern "Union" [x, y]) (ECon "Union" [Nest (EVar vi) (EVar x), Nest (EVar vi) (EVar y)]) ])
+
+  -- Pretty-print `x` into a string, with `w` as the designated width of each line.
+  -- pretty w x ->d layout (best w 0 x)
+  Pretty Exp Exp :: Exp
+  Pretty w x = Layout (Best w (EInt 0) x)
+
+  -- Auxilliary construct for `best`. Choose the better layout out of `x` and `y`,
+  -- when the total designated width of a line is `w`, and the amount of characters already used on the first line is `k`.
+  -- better w k x y ->d fresh vx in
+  --   let vx = x in
+  --     if (fits (w - k) vx) then vx else y
+  Better Exp Exp Exp Exp :: Exp
+  Better w k x y = @fresh vx
+    in ELet vx x
+        (EIf (Fits (ESub w k) (EVar vx)) (EVar vx) y)
+
+  -- Choose the best layout of `e`, when the total designated width of a line is `w`,
+  -- and the amount of characters already used on the first line is `k`.
+  -- best w k e ->d fresh vw vk s i x y in
+  --   let vw = w in
+  --     let vk = k in
+  --       case e of
+  --         Nil -> Nil
+  --         Line i x -> Line i (best vw i x)
+  --         Text s x -> Text s (best vw (vk + length s) x)
+  --         Union x y -> better vw vk (best vw vk x) (best vw vk y)
+  Best Exp Exp Exp :: Exp
+  Best w k e = @fresh vw vk s i x y
+    in ELet vw w
+         (ELet vk k
+           (ECase e
+             [ Branch (Pattern "Nil" []) (ECon "Nil" [])
+             , Branch (Pattern "Line" [i, x]) (ECon "Line" [EVar i, Best (EVar vw) (EVar i) (EVar x)])
+             , Branch (Pattern "Text" [s, x]) (ECon "Text" [EVar s, Best (EVar vw) (EPlus (EVar vk) (ELength (EVar s))) (EVar x)])
+             , Branch (Pattern "Union" [x, y]) (Better (EVar vw) (EVar vk) (Best (EVar vw) (EVar vk) (EVar x)) (Best (EVar vw) (EVar vk) (EVar y)))]))
+
+  -- Check if e fits into w characters.
+  -- fits w e ->d fresh s i x in
+  --   let vw = w in
+  --     if vw < 0 then False else case e of
+  --       Nil -> True
+  --       Line i x -> True
+  --       Text s x -> fits (vw - length s) x
+  Fits Exp Exp :: Exp
+  Fits w e = @fresh vw s i x in
+    ELet vw w
+      (EIf (ELe (EVar vw) (EInt 0))
+        (EBool False)
+        (ECase e
+          [ Branch (Pattern "Nil" []) (EBool True)
+          , Branch (Pattern "Line" [i, x]) (EBool True)
+          , Branch (Pattern "Text" [s, x]) (Fits (ESub (EVar vw) (ELength (EVar s))) (EVar x))
+          ]))
+
+  -- Render a single-layout document (no `Union`) into a string.
+  -- layout e ->d fresh s i x in
+  --   case e of
+  --     Text s x -> s ++ layout x
+  --     Line i x -> "\n" ++ (" " * i) ++ layout x
+  --     Nil -> ""
+  Layout Exp :: Exp
+  Layout e = @fresh s i x
+    in ECase e
+        [ Branch (Pattern "Text" [s, x]) (EConcat (EVar s) (Layout (EVar x)))
+        , Branch (Pattern "Line" [i, x]) (EConcat (EStr "\n") (EConcat (ECopy (EVar i) (EStr " ")) (Layout (EVar x))))
+        , Branch (Pattern "Nil" []) (EStr "")
+        ]

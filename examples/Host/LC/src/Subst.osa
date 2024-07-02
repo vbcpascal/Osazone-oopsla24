@@ -1,0 +1,23 @@
+module Subst where
+
+import Lang
+import Meta.Identifier
+
+[#expand]
+[#pure]
+subst :: Exp -> Id -> Exp -> Exp
+subst ETrue x e = ETrue
+subst EFalse x e = EFalse
+subst (EIf e1 e2 e3) x e =
+  EIf (subst e1 x e) (subst e2 x e) (subst e3 x e)
+subst (EVar x) y e =
+  case x of
+    _ | x == y -> e
+    _          -> EVar x 
+subst (EAbs x e) y e_ =
+  case x of
+    _ | x == y -> EAbs x e
+    _ ->
+      let en = subst e y e_
+      in EAbs x en 
+subst (EApp e1 e2) x e = EApp (subst e1 x e) (subst e2 x e)

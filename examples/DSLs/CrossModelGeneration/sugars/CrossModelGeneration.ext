@@ -1,0 +1,27 @@
+module CrossModelGeneration where
+
+sugar extension where
+
+  Prog Exp :: Declr
+  Prog e = DData "Relation" [(Constr "Relation" [TStr, TStr])] 
+    (DData "List" [(Constr "Nil" []), (Constr "Cons" [TCon "Relation", TCon "List"])] 
+      (DData "Entity" [(Constr "Entity" [TStr, TCon "List"])]
+        (DExp e)))
+
+  Entity String Exp :: Exp
+  Entity s e = ECon "Entity" [EStr s, e]
+
+  Relation String String Exp :: Exp
+  Relation s1 s2 e = ECon "Cons" [ECon "Relation" [EStr s1, EStr s2], e]
+
+  End :: Exp
+  End = ECon "Nil" []
+
+filter where
+
+  use extension (..)
+  use host ( VStr, TStr )
+
+  -- The following constructs in not necessary in DSL actually.
+  -- They are included because of the limitation of current version.
+  use host ( Pattern, Branch, VCon )

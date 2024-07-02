@@ -1,0 +1,55 @@
+module ListComprehension where
+
+sugar extension where
+
+  -- The program entry, defining the list recursive data type. We focus on lists of integers.
+  -- Prog { d } ->d data List = Nil | Cons Int List; d
+  Prog Declr :: Declr
+  Prog d = DData "List" 
+    [ Constr "Nil" []
+    , Constr "Cons" [TInt, TCon "List"]
+    ] d
+
+  -- The three qualifiers, see README.md for a more involved explanation.
+  -- The `e` always represents the remaining qualifiers along with the final expression.
+
+  -- List of TInt only, so x must be of TInt
+  -- [ e | x <- e', qs ] ->d concatMap (\x -> [ e | qs ]) e'
+  For Id Exp Exp :: Exp
+  For x e' e = ConcatMap (EAbs x TInt e) e'
+
+  -- [ e | e', qs ] ->d if e' then [ e | qs ] else []
+  If Exp Exp :: Exp
+  If e' e = EIf e' e (ECon "Nil" [])
+
+  -- We have no type inference in the host language.
+  -- [ e | x = e', qs ] ->d let x = e' in [ e | qs ]
+  Let Id Exp Exp :: Exp
+  Let x e' e = ELet x e' e
+
+  -- final expression, with no qualifiers
+  -- [ e | (no more qualifiers) ] -> [e]
+  Yield Exp :: Exp
+  Yield e = ECon "Cons" [e, ECon "Nil" []]
+
+  -- Primitive functions of lists, defined as general recursive sugar.
+
+  -- concatMap :: (Int -> List) -> List -> List
+  -- concatMap f xs = case xs of
+  --   [] -> []
+  --   x : xs' -> append (f x) (concatMap f xs')
+  ConcatMap Exp Exp :: Exp
+  ConcatMap f xs = @fresh x xs' in ECase xs
+    [ Branch (Pattern "Nil" []) (ECon "Nil" [])
+    , Branch (Pattern "Cons" [x, xs']) (Append (EApp f (EVar x)) (ConcatMap f (EVar xs')))
+    ]
+
+  -- append :: List -> List
+  -- append xs ys = case xs of
+  --   [] -> ys
+  --   x : xs' -> x : (append xs' ys)
+  Append Exp Exp :: Exp
+  Append xs ys = @fresh x xs' in ECase xs
+    [ Branch (Pattern "Nil" []) ys
+    , Branch (Pattern "Cons" [x, xs']) (ECon "Cons" [EVar x, Append (EVar xs') ys])
+    ]

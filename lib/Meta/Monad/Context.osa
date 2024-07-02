@@ -1,0 +1,91 @@
+module Meta.Monad.Context where
+
+import Meta.Monad.EnvStack
+import Data.Map
+
+type ContextL k a l = EnvStack (Map k a, l)
+type Context k a = ContextL k a ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => ContextL k a l m (Lib.Data.Map.Map k a)"]
+getCtx ::?
+getCtx =
+  let (env, _) = getEnv
+  in  env
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => Lib.Data.Map.Map k a -> ContextL k a l m ()"]
+putCtx ::?
+putCtx ctx =
+  let (_, info) = getEnv
+      _ = putEnv (ctx, info)
+  in  ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => ContextL k a l m l"]
+getPayload ::?
+getPayload =
+  let (_, info) = getEnv
+  in  info
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => l -> ContextL k a l m ()"]
+putPayload ::?
+putPayload info =
+  let (ctx, _) = getEnv
+      _ = putEnv (ctx, info)
+  in  ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => k -> a -> ContextL k a l m ()"]
+insertCtx ::?
+insertCtx x v =
+  let ctx = getCtx
+      ctx' = insert x v ctx
+      _ = putCtx ctx'
+  in  ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => k -> ContextL k a l m a"]
+searchCtx ::?
+searchCtx x =
+  let ctx = getCtx
+  in  ctx ! x
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => Lib.Data.Map.Map k a -> ContextL k a l m ()"]
+mergeCtx ::?
+mergeCtx ctx =
+  let ctx1 = getCtx
+      ctx' = union ctx1 ctx
+      _ = putCtx ctx'
+  in  ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => Lib.Data.Map.Map k a -> ContextL k a l m ()"]
+mergeCtx1 ::?
+mergeCtx1 ctx =
+  let ctx1 = getCtx
+      ctx' = union ctx ctx1
+      _ = putCtx ctx'
+  in  ()
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => ContextL k a l m ()"]
+local ::?
+local = Meta.Monad.EnvStack.local
+
+[#monadic]
+[#gentype "(Monad m, Ord k) => ContextL k a l m ()"]
+restore ::?
+restore = Meta.Monad.EnvStack.restore
+
+[#pure]
+[#gentype "(Monad m, Ord k) => ContextL k a l m b -> l -> m b"]
+evalContextL ::?
+evalContextL s l = evalEnvStack s (empty, l)
+
+[#pure]
+[#gentype "(Monad m, Ord k) => Context k a m b -> m b"]
+evalContext ::?
+evalContext s = evalContextL s ()

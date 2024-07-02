@@ -1,0 +1,38 @@
+module Deep where
+
+sugar extension where
+
+  -- Prog { e } ->d
+  --   data Exp = Plus Exp Exp | Times Exp Exp | Const Int; eval e
+  Prog Exp :: Declr
+  Prog e = DData "Exp" 
+    [ (Constr "Plus" [TCon "Exp", TCon "Exp"])
+    , (Constr "Times" [TCon "Exp", TCon "Exp"])
+    , (Constr "Const" [TInt])
+    ] (DExp (Eval e))
+
+  -- let p = e1 in e2  ->d  case e1 of p -> e2
+  Let Pattern Exp Exp :: Exp
+  Let p e1 e2 = ECase e1 [Branch p e2]
+
+  -- eval e ->d case e of
+  --   Plus  x1 y1 -> let Const i1 = eval x1; Const j1 = eval y1 in Const (i1 + j1)
+  --   Times x2 y2 -> let Const i2 = eval x2; Const j2 = eval y2 in Const (i2 + j2)
+  --   Const x     -> Const x
+  Eval Exp :: Exp
+  Eval e = @fresh x1 y1 x2 y2 x i1 j1 i2 j2 in ECase e
+        [ Branch (Pattern "Plus"  [x1, y1]) 
+            (Let (Pattern "Const" [i1]) (Eval (EVar x1)) 
+              (Let (Pattern "Const" [j1]) (Eval (EVar y1)) 
+                (ECon "Const" [EPlus (EVar i1) (EVar j1)])))
+        , Branch (Pattern "Times" [x2, y2]) 
+            (Let (Pattern "Const" [i2]) (Eval (EVar x2)) 
+              (Let (Pattern "Const" [j2]) (Eval (EVar y2)) 
+                (ECon "Const" [EMul (EVar i2) (EVar j2)])))
+        , Branch (Pattern "Const" [x]) (ECon "Const" [EVar x])
+        ]
+
+filter where
+
+  use extension (..)
+  use host ( EInt, VInt, TInt, ECon, VCon, EVar, Pattern, Branch )

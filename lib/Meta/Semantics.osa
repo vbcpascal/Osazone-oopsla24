@@ -1,0 +1,16 @@
+module Meta.Semantics where
+
+import Haskell.Control.Monad as HS
+
+-- This function cannot be expressed in Osazone directly.
+-- It will be translated to `mapM`. (Currently, sorry, no!)
+[#monadic]
+[#expand]
+[#gentype "(Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)"]
+mmap ::?
+mmap = HS.mapM
+
+[#monadic]
+[#gentype "Monad m => m a"]
+fresh ::?
+fresh = undefined

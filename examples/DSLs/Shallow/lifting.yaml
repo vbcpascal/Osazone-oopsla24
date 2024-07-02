@@ -1,0 +1,12 @@
+# Configurations of Shallow
+
+# The name of the language after lifting
+name:       Shallow
+
+# The path of core language definiton
+core:       ../../Host/MiniML
+
+# The extension file
+extensions:
+
+  - Shallow
