@@ -6,11 +6,14 @@ import Control.Monad (forM_, when)
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
+    , getCurrentDirectory
     , removeDirectory
     , removeDirectoryRecursive
     , removeFile
+    , withCurrentDirectory
     )
 import System.FilePath ((</>))
+import System.Process
 import Target.Haskell.Generator (generateHaskellCode)
 import Utils.AnsiPretty
 
@@ -18,6 +21,7 @@ runReview :: [String] -> IO ()
 runReview args = case args of
   ("crazy-build": args') -> build args'
   ("clean": args')       -> clean args'
+  ("compile": args')     -> compile args'
   _ -> putStrLn $ "unknown arguments of review: " ++ show args
 
 build :: [String] -> IO ()
@@ -82,6 +86,32 @@ cleanDSL = do
 
 thenDo :: IO Bool -> IO () -> IO ()
 thenDo cond f = do { c <- cond; if c then do { putStr "√ "; f } else putStr "x " }
+
+compile :: [String] -> IO ()
+compile ("--dsl" : _)  = compileDSL
+compile ("--host" : _) = compileHost
+compile []             = do { compileHost; putStrLn "\n"; compileDSL }
+compile args           = putStrLn $ "unknown arguments of compile: " ++ show args
+
+compileHost :: IO ()
+compileHost = do
+  putDocLn "Try to compile interpreters of all the host languages\n"
+  putDocLn "This will use command `stack ghc`. If one of them failes, try to run `cd <path>/build; stack ghc Main.hs` and read the error messages."
+  let total = length hostLanguageLists
+  forM_ (zip hostLanguageLists ([1..] :: [Int])) $ \(path, id) -> do
+    putDocLn $ colored Magenta $
+      "[" <+> pretty id <+> "of" <+> pretty total <+> "] host" <+> pretty path
+    withCurrentDirectory (path </> "build") $ readProcess "stack" ["ghc", "Main.hs", "--", "-Wno-overlapping-patterns"] ""
+
+compileDSL :: IO ()
+compileDSL = do
+  putDocLn "Try to compile interpreters of all the DSLs\n"
+  putDocLn "This will use command `stack ghc`. If one of them failes, try to run `cd <path>/build; stack ghc Main.hs` and read the error messages."
+  let total = length dslLists
+  forM_ (zip dslLists ([1..] :: [Int])) $ \(path, id) -> do
+    putDocLn $ colored Cyan $
+      "[" <+> pretty id <+> "of" <+> pretty total <+> "] DSL" <+> pretty path
+    withCurrentDirectory (path </> "build") $ readProcess "stack" ["ghc", "Main.hs", "--", "-Wno-overlapping-patterns"] ""
 
 hostLanguageLists :: [FilePath]
 hostLanguageLists =

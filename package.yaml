@@ -38,6 +38,7 @@ dependencies:
 - ansi-terminal
 - transformers
 - prettyprinter-ansi-terminal
+- process
 
 default-extensions:
 # Type level goodies

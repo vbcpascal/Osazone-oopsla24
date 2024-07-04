@@ -1,4 +1,5 @@
 packages:
 - .
 resolver:
-  url: http://mirrors.ustc.edu.cn/stackage/stackage-snapshots/lts/22/6.yaml
+  lts-22.6
+  # url: http://mirrors.ustc.edu.cn/stackage/stackage-snapshots/lts/22/6.yaml
