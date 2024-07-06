@@ -31,7 +31,7 @@
   fill: osacolor.lighten(99%),
 )[
   #place(right + bottom)[
-    #image(width: 50pt, "./assets/osazone.png")
+    #image(width: 50pt, "assets/osazone.png")
   ]
   #body
 ]
@@ -78,11 +78,11 @@ _We will use *§3.2* to refer to the section of this document and use *Sec. 3.2*
 #let dsg = $scripts(->)_d$
 #let bigstep(e, v) = $#e arrow.double.b #v$
 
-Our paper (Semantics Lifting for Syntactic Sugar) proposes a systematic framework to lift semantics for syntactic sugars. Based on the semantics of the host language and syntactic sugars to define DSL, we can obtain a standalone, host-independent semantics of DSL for free.
+Our paper (Semantics Lifting for Syntactic Sugar) proposes a systematic framework to lift semantics for syntactic sugars. Based on the semantics of the host language and DSL language construct definitions as syntactic sugars, we can obtain a standalone, host-independent semantics of the DSL for free.
 
 The two most important properties of our semantics-lifting algorithm are correctness and abstraction, mentioned in Sec. 2 and Sec 3.4 in our paper. As a concrete example, consider the example given in Sec. 2. Taking #lang[LC] (Lambda calculus) as the host language, we can define boolean operations using syntactic sugars. For instance, the `and` operation can be defined as:
 $ e_1 "and" e_2 dsg "if" e_1 "then" e_2 "else" "false" $
-where the left-hand side (LHS) and right-hand side (RHS) are separated by $dsg$. The LHS defines a new language construct of DSL #lang[Bool] with meta-variables and the RHS is composed of constructs in host languages and these meta-variables. Given the semantics of the host language (we only write the evaluation rule of `if` below, while other rules can be found in Fig. 2 of the paper),
+where the left-hand side (LHS) and right-hand side (RHS) are separated by $dsg$. The LHS defines a new language construct of DSL #lang[Bool] with meta-variables and the RHS is composed of constructs in the host language and these meta-variables. Given the semantics of the host language (the evaluation rule of `if` is given below, while other rules can be found in Fig. 2 of the paper),
 $ #proof-tree(rule(
     $bigstep("if" e_1 "then" e_2 "else" e_3, v_2)$, 
     $bigstep(e_1, "true")$, 
@@ -104,7 +104,7 @@ $ #proof-tree(rule(
     $bigstep(e_1, "false")$))
 $
 
-This artifact, #osa is a prototype of the DSL development platform, to support the semantics-lifting algorithm. As mentioned in Sec. 4 of our paper, #osa provides *two aspects of functionality:* (1) to define a (host) language using #osa’s meta-language; and (2) to define a (domain-specific) language with syntactic sugars on top of an existing host
+This artifact, #osa is a prototype of the DSL development framework, implementing the semantics-lifting algorithm. As mentioned in Sec. 4 of our paper, #osa provides *two aspects of functionality:* (1) to define a (host) language using #osa’s meta-language; and (2) to define a (domain-specific) language with syntactic sugars on top of an existing host
 language. The latter is the focus of our paper, while the former is the basis for making DSL programs executable.
 - *Define a (host) language.* The input is a language definition (abstract syntax and semantics); and the output is an interpreter of the language (note: our system will generate a set of Haskell files for further compilation).
   #figure(image(width: 95%, "assets/fun1.png"))
@@ -428,10 +428,10 @@ not mentioning host-language construct `EIf` (abstraction property).
 === Summary
 
 Each DSL should be evaluated in the following steps:
-1. Check the syntactic sugars in `<path-to-DSL>/sugars/<file>.ext`
-2. Lift the language and get a standalone DSL definition (using `stack run lift`)
-3. Build the language and get a set of Haskell source code (using `stack run build`)
-4. Compile the Haskell code and run test file (using `stack ghc Main.hs`)
++ Check the syntactic sugars in `<path-to-DSL>/sugars/<file>.ext`
++ Lift the language and get a standalone DSL definition (using `stack run lift`)
++ Build the language and get a set of Haskell source code (using `stack run build`)
++ Compile the Haskell code and run test file (using `stack ghc Main.hs`)
 
 To verify our claim, we provide some supplementary notes:
 - To obtain the result of Table 1, just count the number of syntactic sugars in `.ext` file.
@@ -447,7 +447,7 @@ What's more, we provide some snippets for convenience.
   ```
 ]
 
-*Build all languages.* We hardcode all the languages mentioned in the paper, and automate the above steps as much as possible. However, compiling the generated Haskell code and running sample programs still need to be done manually.
+*Build all languages.* We hard-code all the languages mentioned in the paper, and automate the above steps as much as possible. However, compiling the generated Haskell code and running sample programs still need to be done manually.
 #commandline[
 ```bash
 Osazone$ stack run review crazy-build
@@ -782,3 +782,6 @@ All the commands should be started with `stack run` or `Osazone-exe` (if install
 #cl("util lang info|modules <path>")[
   This command is used to check the basic information of a language. The `info` command will show version of the language, and a list of modules imported by the language. The `modules` command is more detailed, providing concrete dependencies on modules, as well as imported Haskell modules.
 ]
+
+
+
