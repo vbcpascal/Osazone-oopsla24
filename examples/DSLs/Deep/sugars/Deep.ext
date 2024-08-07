@@ -32,6 +32,25 @@ sugar extension where
         , Branch (Pattern "Const" [x]) (ECon "Const" [EVar x])
         ]
 
+  EvalFix :: Exp
+  EvalFix = @fresh ev e in EFix
+    (EAbs ev (TArrow (TCon "Exp") (TCon "Exp"))
+     (EAbs e (TCon "Exp") (EvalF ev e)))
+
+  EvalF Exp Exp :: Exp
+  EvalF ev e = @fresh x1 y1 x2 y2 x i1 j1 i2 j2 in ECase e
+        [ Branch (Pattern "Plus"  [x1, y1]) 
+            (Let (Pattern "Const" [i1]) (EApp ev (EVar x1)) 
+              (Let (Pattern "Const" [j1]) (EApp ev (EVar y1)) 
+                (ECon "Const" [EPlus (EVar i1) (EVar j1)])))
+        , Branch (Pattern "Times" [x2, y2]) 
+            (Let (Pattern "Const" [i2]) (EApp ev (EVar x2)) 
+              (Let (Pattern "Const" [j2]) (EApp ev (EVar y2)) 
+                (ECon "Const" [EMul (EVar i2) (EVar j2)])))
+        , Branch (Pattern "Const" [x]) (ECon "Const" [EVar x])
+        ]
+
+
 filter where
 
   use extension (..)

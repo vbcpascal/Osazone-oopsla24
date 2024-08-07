@@ -34,6 +34,32 @@ sugar extension where
 
   -- Primitive functions of lists, defined as general recursive sugar.
 
+  ConcatMapFix :: Exp 
+  ConcatMapFix = @fresh concatmap f xs in 
+    EFix (EAbs concatmap (TArrow (TArrow TInt (TCon "List")) (TArrow (TCon "List") (TCon "List"))) 
+          (EAbs f (TArrow TInt (TCon "List"))
+           (EAbs xs (TCon "List") 
+            (ConcatMapF (EVar concatmap) (EVar f) (EVar xs)))))
+
+  ConcatMapF Exp Exp Exp :: Exp
+  ConcatMapF concatmap f xs = @fresh x xs' in ECase xs
+    [ Branch (Pattern "Nil" []) (ECon "Nil" []) 
+    , Branch (Pattern "Cons" [x, xs']) (Append (EApp f (EVar x)) (EApp (EApp concatmap f) (EVar xs')))
+    ]
+
+  AppendFix :: Exp
+  AppendFix = @fresh append xs ys
+    EFix (EAbs append (TArrow (TCon "List") (TArrow (TCon "List") (TCon "List")))
+          (EAbs xs (TCon "List")
+           (EAbs ys (TCon "List")
+            (AppendF (EVar append) (EVar xs) (EVar ys))))) 
+
+  AppendF Exp Exp Exp :: Exp
+  AppendF append xs ys = @fresh x xs' in ECase xs
+    [ Branch (Pattern "Nil" []) ys
+    , Branch (Pattern "Cons" [x, xs']) (ECon "Cons" [EVar x, EApp (EApp append (EVar xs')) ys])
+    ]
+
   -- concatMap :: (Int -> List) -> List -> List
   -- concatMap f xs = case xs of
   --   [] -> []

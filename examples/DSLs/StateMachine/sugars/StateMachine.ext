@@ -36,3 +36,18 @@ sugar extension where
                 (EVar "to") 
                 (RunWith e1 e2 (EVar "rest"))) 
         ]
+
+  RunWithFix :: Exp
+  RunWithFix = @fresh runwith e1 e2 e3
+    in EFix (EAbs runwith (TArrow TStr (TArrow TStr (TArrow (TCon "Rule") TStr)))
+             (EAbs e1 TStr (EAbs e2 TStr (EAbs e3 TStr 
+              (RunWithF (EVar runwith) (EVar e1) (EVar e2) (EVar e3)))))) 
+
+  RunWithF Exp Exp Exp Exp :: Exp
+  RunWithF runwith e1 e2 e3 = @fresh from event to rest
+    in ECase e3
+        [ Branch (Pattern "Rule" ["from", "event", "to", "rest"])
+           (EIf (And (EStrEq (EVar "from") e1) (EStrEq (EVar "event") e2)) 
+                (EVar "to") 
+                (EApp (EApp (EApp runwith e1) e2) (EVar "rest"))) 
+        ]
