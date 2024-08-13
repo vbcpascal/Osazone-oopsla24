@@ -48,7 +48,7 @@ sugar extension where
     ]
 
   AppendFix :: Exp
-  AppendFix = @fresh append xs ys
+  AppendFix = @fresh append xs ys in
     EFix (EAbs append (TArrow (TCon "List") (TArrow (TCon "List") (TCon "List")))
           (EAbs xs (TCon "List")
            (EAbs ys (TCon "List")

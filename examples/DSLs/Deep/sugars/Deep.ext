@@ -35,7 +35,7 @@ sugar extension where
   EvalFix :: Exp
   EvalFix = @fresh ev e in EFix
     (EAbs ev (TArrow (TCon "Exp") (TCon "Exp"))
-     (EAbs e (TCon "Exp") (EvalF ev e)))
+     (EAbs e (TCon "Exp") (EvalF (EVar ev) (EVar e))))
 
   EvalF Exp Exp :: Exp
   EvalF ev e = @fresh x1 y1 x2 y2 x i1 j1 i2 j2 in ECase e
@@ -49,9 +49,3 @@ sugar extension where
                 (ECon "Const" [EMul (EVar i2) (EVar j2)])))
         , Branch (Pattern "Const" [x]) (ECon "Const" [EVar x])
         ]
-
-
-filter where
-
-  use extension (..)
-  use host ( EInt, VInt, TInt, ECon, VCon, EVar, Pattern, Branch )
